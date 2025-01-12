@@ -3,6 +3,7 @@ from lxml import html
 import datetime as dt
 import math
 import re
+import json
 
 def parse_sherdog_fighter(url):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"}
@@ -29,7 +30,7 @@ def parse_sherdog_fighter(url):
         'birthdate' : xml.xpath("//span[@itemprop='birthDate']/text()")[0],
         'age' : xml.xpath("//span[@itemprop='birthDate']/preceding-sibling::b/text()")[0],
         'height' : xml.xpath("//b[@itemprop='height']/text()")[0],
-        'weight' : xml.xpath("//b[@itemprop='weight']/text()")[0],
+        'weight' : xml.xpath("//b[@itemprop='weight']/text()")[0],        
         'association' : xml.xpath("//span[@itemprop='memberOf']/a/span/text()")[0],
         'weight_class' : xml.xpath("//div[@class='association-class']/a/text()")[0],
 
@@ -78,6 +79,14 @@ def get_ufc_stats(url):
     htm = req.get(url, headers = headers)
     xml = html.document_fromstring(htm.content)
 
+    # Извлечение данных о размахе рук
+    reach = xml.xpath("//div[contains(@class, 'c-bio__text') and preceding-sibling::div[text()='Reach']]/text()")
+    reach_value = reach[0].strip() if reach else "N/A"
+
+    # Извлечение данных о стойке
+    stance = xml.xpath("//div[contains(@class, 'c-bio__text') and preceding-sibling::div[text()='Stance']]/text()")
+    stance_value = stance[0].strip() if stance else "N/A"
+
     distance = xml.xpath("//div[@class='c-stat-3bar__value']/text()")
     stats = xml.xpath("//div[@class='c-stat-compare__number']/text()")
 
@@ -89,6 +98,8 @@ def get_ufc_stats(url):
             str_tds.append("0")
 
     fighter = {
+        'reach': reach_value,  # Добавляем размах рук
+        'stance': stance_value,  # Добавляем стойку бойца
         'strikes': {
             'attempted': str_tds[1],
             'landed': str_tds[0],
@@ -243,3 +254,6 @@ def get_upcoming_events():
 def get_event(query):
     link = get_ufc_link_event(query)
     return parse_event(link)
+
+with open('Alexandre Pantoja.json', 'w') as f:
+    json.dump(get_fighter('Alexandre Pantoja'), f)
