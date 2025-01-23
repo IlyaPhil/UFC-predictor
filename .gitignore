@@ -1,8 +1,8 @@
-*.csv
-ufc-master-for-binary-classification_featured.csv
-ufc-master-for-binary-classification.csv
 
 /notebooks
+/data_preprocessed
+/datasets
 
 *.pyc
 *__init__.py
+
