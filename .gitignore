@@ -1,3 +1,8 @@
 *.csv
 ufc-master-for-binary-classification_featured.csv
 ufc-master-for-binary-classification.csv
+
+/notebooks
+
+*.pyc
+*__init__.py
