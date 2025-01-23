@@ -1,8 +1,11 @@
 
 /notebooks
 /data_preprocessed
-/datasets
+/datasets/large_dataset.csv
+/datasets/UFC-fight-data_894.csv
+/ufc-api-main
 
 *.pyc
 *__init__.py
 
+backend/test.ipynb

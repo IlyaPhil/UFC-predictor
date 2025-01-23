@@ -1,6 +1,6 @@
 import io
 import copy
-from fastapi import FastAPI, Depends, APIRouter, UploadFile, File, HTTPException
+from fastapi import FastAPI, Depends, APIRouter, UploadFile, File, HTTPException, Body
 from pydantic import BaseModel
 import pandas as pd
 import numpy as np
@@ -12,6 +12,7 @@ from functions import create_new_features,\
                       run_xgboost_model_prediction,\
                       run_rnn_model_prediction,\
                       show_predictions
+                      
                       
 import joblib
 
@@ -78,7 +79,9 @@ class FightData(BaseModel):
     RedTimeSinceLastFight: int 
     BlueTimeSinceLastFight: int 
 
-
+# Определите модель для входящих данных
+class BetSizeRequest(BaseModel):
+    bet_size: int
 
 @router.post("/upload_fight_data_json/")
 async def upload_json(data: List[FightData]):
@@ -129,11 +132,11 @@ async def select_model(model_name: str, models: Dict[str, Any] = Depends(get_mod
     return {"message": f"Model '{model_name}' selected successfully."}
 
 
-
 # Эндпоинт для выполнения предсказания
 @router.post("/predict")
-async def predict():
-
+async def predict(request: BetSizeRequest) -> Dict:
+    bet_size = request.bet_size  # Извлекаем bet_size из запроса
+    
     global df_test, selected_model
     # selected_model = models.get("selected_model")
 
@@ -156,7 +159,7 @@ async def predict():
         scaler = joblib.load('models/ufc_stand_scaler.joblib')
         test_data = scaler.transform(test_data)
 
-        # Получаем предсказания с выбранной моделью
+        # Получаем предсказания с выбранной моделью        
         if selected_model_name == 'XGBoost':
             predictions = run_xgboost_model_prediction(selected_model, test_data)
 
@@ -164,19 +167,21 @@ async def predict():
             predictions = run_rnn_model_prediction(selected_model, test_data)
 
         # Выводим результаты предсказания
-        predictions_df = show_predictions(df_test, predictions, 1000)
+        predictions_df = show_predictions(df_test, predictions, bet_size)
 
-        # Рассчитываем сумму выигрыша
-        # gain = calc_gain(predictions_df)
+        # Сохраним вероятности модели при выборе победителя
+        y_proba = predictions['y_proba']        
     
         return {
             "message": "Predictions successfully generated",
-            "predictions": predictions_df.to_dict(orient="records")
+            "predictions": predictions_df.to_dict(orient="records"),
+            "y_proba": y_proba.tolist(),
+            "bet_size": bet_size
         }
     
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error generating predictions: {e}")
-    
+
 
 @router.get("/check-models/")
 async def check_models(models: Annotated[Dict[str, Any], Depends(get_models)]):
