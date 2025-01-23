@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import random
+import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import Dataset, DataLoader
 from typing import List, Dict, Any, Union, Annotated
@@ -170,7 +170,7 @@ def calc_odds(row: pd.Series) -> pd.Series:
     return row
 
     
-def calc_gain_expectation(row: pd.Series, bet_size: int = 1000) -> pd.Series:
+def calc_gain_expectation(row: pd.Series, bet_size: int) -> pd.Series:
     """
     Расчет математического ожидания выигрыша за каждую ставку
     """
@@ -180,22 +180,19 @@ def calc_gain_expectation(row: pd.Series, bet_size: int = 1000) -> pd.Series:
     return row
 
 
-def show_predictions(df_test: pd.DataFrame, predictions: Dict, bet_size: int=1000) -> pd.DataFrame:
+def show_predictions(df_test: pd.DataFrame, predictions: Dict, bet_size: int) -> pd.DataFrame:
     """
     Возвращает датафрейм с предсказаниями победителя боя и
     предсказанными вероятностями победы каждого из бойцов.
-    Рассчитывает сумму выигрыша для трех случаев:
-    model: при использовании модели
-    odds: при ориентации на коэффициенты букмекеров
-    guess: при случайном угадывании
+    Рассчитывает математическое ожидание выигрыша для обоих бойцов 
     """
     predictions_df = pd.DataFrame({
                                 'RedFighter': df_test['RedFighter'],
                                 'BlueFighter': df_test['BlueFighter'],
                                 'RedOdds': df_test['RedOdds'],
                                 'BlueOdds': df_test['BlueOdds'],
-                                'ProbRedWins': predictions['y_proba'][:, 0],
-                                'ProbBlueWins': predictions['y_proba'][:, 1]                                 
+                                'ProbRedWins': np.round(predictions['y_proba'][:, 0], 2),
+                                'ProbBlueWins': np.round(predictions['y_proba'][:, 1], 2)                                 
                                 })    
 
     # Рассчитываем выигрыш для каждого боя
