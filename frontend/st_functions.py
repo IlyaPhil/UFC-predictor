@@ -6,7 +6,8 @@ import streamlit as st
 import json
 from aiohttp import MultipartWriter
 
-base_url = "http://0.0.0.0:8000/api"
+# base_url = "http://0.0.0.0:8000/api"
+base_url = "https://ufc-predictor.streamlit.app"
 
 # Создайте функцию для загрузки данных в endpoint
 async def upload_json_data_to_endpoint(file):
