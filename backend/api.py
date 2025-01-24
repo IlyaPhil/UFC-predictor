@@ -129,7 +129,7 @@ async def upload_csv(file: UploadFile = File(...)):
         file_content = await file.read()
         df_test = pd.read_csv(io.StringIO(file_content.decode("utf-8")), index_col='Unnamed: 0')
 
-        # Проверка на наличие NaN         
+        # Проверка на наличие NaN
         if df_test.isnull().values.any():
             # Заменяем NaN на 0
             df_test.fillna(0, inplace=True)
@@ -217,6 +217,9 @@ async def predict(request: BetSizeRequest) -> Dict:
 
 @router.get("/check-models/")
 async def check_models(models: Annotated[Dict[str, Any], Depends(get_models)]):
+    """
+    Эндпоинт для проверки списка загруженных моделей
+    """
     models = get_models()
     if not models:
         return {"message": "No models loaded"}
