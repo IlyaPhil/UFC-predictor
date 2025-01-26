@@ -1,5 +1,6 @@
 # UFC-predictor
 ---
+<img src="https://github.com/IlyaPhil/UFC-predictor/blob/main/logo.jpeg" alt="Пример изображения" style="width:30%; height:auto;">
 
 ### Основные сведения
 Данный проект является попыткой получения предсказаний результатов поединков по смешанных единоборствам (ММА) в крупнейшем ММА промоушене [UFC](https://www.ufc.com) при помощи различных ML и DL моделей. 
